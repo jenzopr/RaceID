@@ -9,6 +9,8 @@ x <- read.csv("transcript_counts_intestine.xls",sep="\t",header=TRUE)
 rownames(x) <- x$GENEID
 # prdata: data.frame with transcript counts for all genes (rows) in all cells (columns); with rownames == gene ids; remove ERCC spike-ins 
 prdata <- x[grep("ERCC",rownames(x),invert=TRUE),-1]
+# pattern for celltype from cell name
+pattern = "([I]+)_[0-9]+"
 
 ## RaceID
 # initialize SCseq object with transcript counts
@@ -43,6 +45,10 @@ clustheatmap(sc,final=TRUE,hmethod="single")
 plottsne(sc,final=FALSE)
 # highlight final clusters in t-SNE map
 plottsne(sc,final=TRUE)
+# highlight k-means clusters in t-SNE type map
+plottypetsne(sc,final=FALSE,pattern = pattern)
+# highlight final clusters in t-SNE type map
+plottypetsne(sc,final=TRUE,pattern = pattern)
 # highlight cell labels in t-SNE map
 plotlabelstsne(sc,labels=sub("(\\_\\d+)","",names(sc@ndata)))
 # highlight groups of cells by symbols in t-SNE map
