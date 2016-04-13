@@ -641,34 +641,34 @@ setMethod("plottsne",
           }
           )
 
-setGeneric("plottypetsne", function(object,final=TRUE,pattern="") standardGeneric("plottypetsne"))
+setGeneric("plottypetsne", function(object,final=TRUE,pattern="",group=2) standardGeneric("plottypetsne"))
 
 setMethod("plottypetsne",
           signature = "SCseq",
-          definition = function(object,final,pattern){
+          definition = function(object,final,pattern,group){
             if ( length(object@tsne) == 0 ) stop("run comptsne before plottsne")
             if ( final & length(object@cpart) == 0 ) stop("run findoutliers before plottsne")
             if ( !final & length(object@kmeans$kpart) == 0 ) stop("run clustexp before plottsne")
             part <- if ( final ) object@cpart else object@kmeans$kpart
             
-            types <- as.factor(gsub(pattern,"\\1",names(part)))
+            types <- as.factor(gsub(pattern,paste("\\",group,sep=""),names(part)))
             symbols = as.numeric(types) + 20
             ntypes <- length(levels(types))
             ncol <- length(sc@fcol)
             
-            om = par()$mar
-            par(mar=c(5.1,4.1,4.1,8.1), xpd = T)
             plot(object@tsne,xlab="Dim 1",ylab="Dim 2",type="n")
             for ( i in 1:length(part) ){
               points(object@tsne[i,1], object@tsne[i,2], bg = object@fcol[part[i]], pch = symbols[i], cex=2.0)
             }
-            legend("topright",
+            
+            plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+            legend("center",
                    pch = c(rep(16,ncol),(1:ntypes+20)),
                    col = c(sc@fcol, rep("black", ntypes)),
                    legend = c(1:ncol, levels(types)),
                    inset=c(-0.25,0),
-                   cex = 1.0)
-            par(mar=om, xpd = F)
+                   cex = 1.0,
+                   ncol = 2)
           }
 )
 

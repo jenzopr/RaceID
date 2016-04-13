@@ -46,9 +46,9 @@ plottsne(sc,final=FALSE)
 # highlight final clusters in t-SNE map
 plottsne(sc,final=TRUE)
 # highlight k-means clusters in t-SNE type map
-plottypetsne(sc,final=FALSE,pattern = pattern)
+plottypetsne(sc,final=FALSE,pattern = pattern, group = 1)
 # highlight final clusters in t-SNE type map
-plottypetsne(sc,final=TRUE,pattern = pattern)
+plottypetsne(sc,final=TRUE,pattern = pattern, group = 1)
 # highlight cell labels in t-SNE map
 plotlabelstsne(sc,labels=sub("(\\_\\d+)","",names(sc@ndata)))
 # highlight groups of cells by symbols in t-SNE map
