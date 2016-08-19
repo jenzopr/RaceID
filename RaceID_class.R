@@ -652,18 +652,19 @@ setMethod("plottypetsne",
             part <- if ( final ) object@cpart else object@kmeans$kpart
             
             types <- as.factor(gsub(pattern,paste("\\",group,sep=""),names(part)))
-            symbols = as.numeric(types) + 20
+            symbols = c(21:25,7:14)[as.numeric(types)]
+            print(symbols)
             ntypes <- length(levels(types))
             ncol <- length(sc@fcol)
             
             plot(object@tsne,xlab="Dim 1",ylab="Dim 2",type="n")
             for ( i in 1:length(part) ){
-              points(object@tsne[i,1], object@tsne[i,2], bg = object@fcol[part[i]], pch = symbols[i], cex=2.0)
+              points(object@tsne[i,1], object@tsne[i,2], col = ifelse(symbols[i] < 20, object@fcol[part[i]], "black"), bg = object@fcol[part[i]], pch = symbols[i], cex=2.0)
             }
             
             plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
             legend("center",
-                   pch = c(rep(16,ncol),(1:ntypes+20)),
+                   pch = c(rep(16,ncol),c(21:25,7:14)[1:ntypes]),
                    col = c(sc@fcol, rep("black", ntypes)),
                    legend = c(1:ncol, levels(types)),
                    inset=c(-0.25,0),
