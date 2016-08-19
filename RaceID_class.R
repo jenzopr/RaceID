@@ -653,7 +653,6 @@ setMethod("plottypetsne",
             
             types <- as.factor(gsub(pattern,paste("\\",group,sep=""),names(part)))
             symbols = c(21:25,7:14)[as.numeric(types)]
-            print(symbols)
             ntypes <- length(levels(types))
             ncol <- length(sc@fcol)
             
