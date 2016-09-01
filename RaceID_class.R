@@ -426,20 +426,29 @@ setMethod("plotsensitivity",
           }
           )
 
-setGeneric("clustdiffgenes", function(object,pvalue=.01) standardGeneric("clustdiffgenes"))
+setGeneric("clustdiffgenes", function(object,pvalue=.01,use.all=T,use.kmeans=F) standardGeneric("clustdiffgenes"))
 
 setMethod("clustdiffgenes",
           signature = "SCseq",
-          definition = function(object,pvalue){
-            if ( length(object@cpart) == 0 ) stop("run findoutliers before clustdiffgenes")
+          definition = function(object,pvalue,use.all,use.kmeans){
+            if(use.kmeans) {
+              part  <- object@kmeans$kpart
+            } else {
+              part  <- object@cpart
+            }
+            if ( length(part) == 0 ) stop(paste("run",ifelse(use.kmeans,"kmeans","findoutliers"),"before clustdiffgenes"))
             if ( ! is.numeric(pvalue) ) stop("pvalue has to be a number between 0 and 1") else if (  pvalue < 0 | pvalue > 1 ) stop("pvalue has to be a number between 0 and 1")
             cdiff <- list()
             x     <- object@ndata
             y     <- object@expdata[,names(object@ndata)]
-            part  <- object@cpart
+            
             for ( i in 1:max(part) ){
               if ( sum(part == i) == 0 ) next
-              m <- apply(x,1,mean)
+              if(use.all) {
+                m <- apply(x,1,mean)
+              } else {
+                m <- apply(x[,part!=i],1,mean)
+              }
               n <- if ( sum(part == i) > 1 ) apply(x[,part == i],1,mean) else x[,part == i]
               no <- if ( sum(part == i) > 1 ) median(apply(y[,part == i],2,sum))/median(apply(x[,part == i],2,sum)) else sum(y[,part == i])/sum(x[,part == i])
               m <- m*no
@@ -451,33 +460,6 @@ setMethod("clustdiffgenes",
             return(cdiff)
           }
           )
-
-#added by Mario to get access to Kmeans clusters
-setGeneric("clustdiffgenes2", function(object,pvalue=.01) standardGeneric("clustdiffgenes2"))
-
-setMethod("clustdiffgenes2",
-          signature = "SCseq",
-          definition = function(object,pvalue){
-            if ( length(object@kmeans$kpart) == 0 ) stop("run kmeans before clustdiffgenes2")
-            if ( ! is.numeric(pvalue) ) stop("pvalue has to be a number between 0 and 1") else if (  pvalue < 0 | pvalue > 1 ) stop("pvalue has to be a number between 0 and 1")
-            cdiff <- list()
-            x     <- object@ndata
-            y     <- object@expdata[,names(object@ndata)]
-            part  <- object@kmeans$kpart
-            for ( i in 1:max(part) ){
-              if ( sum(part == i) == 0 ) next
-              m <- apply(x,1,mean)
-              n <- if ( sum(part == i) > 1 ) apply(x[,part == i],1,mean) else x[,part == i]
-              no <- if ( sum(part == i) > 1 ) median(apply(y[,part == i],2,sum))/median(apply(x[,part == i],2,sum)) else sum(y[,part == i])/sum(x[,part == i])
-              m <- m*no
-              n <- n*no
-              pv <- binompval(m/sum(m),sum(n),n)
-              d <- data.frame(mean.all=m,mean.cl=n,fc=n/m,pv=pv)[order(pv,decreasing=FALSE),]
-              cdiff[[paste("cl",i,sep=".")]] <- d[d$pv < pvalue,]
-            }
-            return(cdiff)
-          }
-)
 
 setGeneric("diffgenes", function(object,cl1,cl2,mincount=5) standardGeneric("diffgenes"))
 
